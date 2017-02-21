@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html ng-app="plunker" data-ng-cloak>
+<html ng-app="audioVideo" data-ng-cloak>
 
 <head>
   <meta charset="utf-8" />
-  <title>AngularJS Plunker</title>
-  <script>
-    document.write('<base href="' + document.location + '" />');
-  </script>
-  <link rel="stylesheet" href="style.css" />
+  <title>Audio Video</title>
+  <base href="/" />
+  <link rel="stylesheet" href="css/style.css" />
 
 </head>
 
@@ -18,23 +16,29 @@
     <input placeholder="Enter Rom name" ng-model="roomName" />
     <button type="submit">Create it!</button>
   </form>
+
   <p id="subTitle">{{joinUrl}}</p>
 
   <hr>
-  <div class="videoContainer">
-    <video id="localVideo" style="height: 150px;" oncontextmenu="return false;"></video>
-    <meter id="localVolume" class="volume" min="-45" max="-20" high="-25" low="-40" ng-show="localVolume"></meter>
+
+  <div class="videoContainer self" ng-show="local && local.showScreenContainer">
+    <video id="localVideo" oncontextmenu="return false;"></video>
+    <meter id="localVolume" class="volume" min="-45" max="-20" high="-25" low="-40" ng-show="local.isShowVolume" value="{{local.volume}}" ></meter>
   </div>
-  <div id="localScreenContainer" class="videoContainer" ng-show="localScreenContainer">
+
+  <div id="remotes">
+
+    <div class="videoContainer remote" ng-repeat="remote in remoteUserList track by $index" id="{{ 'container_'+ remote.id}}">
+      <stream-video video="remote.video"></stream-video>
+      <meter id="{{'volume_'+ remote.peer.id}}" class="volume" min="-45" max="-20" high="-25" low="-40" value="{{remote.volume}}" ng-show="remote.isShowVolume"></meter>
+      <div class="connectionstate">{{connstate}}</div>
+    </div>
   </div>
-  <div id="remotes"></div>
 
+  <script src="js/libs/angular.min.js"></script>
+  <script src="js/libs/webrtc.min.js"></script>
+  <script src="js/main.js"></script>
 
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.10/angular.min.js"></script>
-
-  <script src="webrtc.min.js"></script>
-  <script src="app.js"></script>
 </body>
 
 </html>

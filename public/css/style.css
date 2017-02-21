@@ -1,0 +1,61 @@
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+.videoContainer {
+    
+}
+
+.self{
+    position: absolute;
+    width: 200px;
+    height: 150px;
+    bottom: 10px;
+    right: 10px;
+    z-index: 99;
+    background-color: #fff;
+    box-shadow: rgba(0,0,0,.117647) 0 1px 6px, rgba(0,0,0,.117647) 0 1px 4px;
+    -webkit-box-shadow: rgba(0,0,0,.117647) 0 1px 6px, rgba(0,0,0,.117647) 0 1px 4px;
+    -moz-box-shadow: rgba(0,0,0,.117647) 0 1px 6px,rgba(0,0,0,.117647) 0 1px 4px;
+    -o-box-shadow: rgba(0,0,0,.117647) 0 1px 6px,rgba(0,0,0,.117647) 0 1px 4px;
+    -ms-box-shadow: rgba(0,0,0,.117647) 0 1px 6px,rgba(0,0,0,.117647) 0 1px 4px;
+}
+
+#remotes{
+    margin: 0 auto;
+    text-align: center;
+}
+
+#remotes .remote{
+  position: relative;
+  width: 30%;
+}
+
+.videoContainer video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.volume {
+    position: absolute;
+    left: 25%;
+    width: 50%;
+    bottom: 5px;
+    height: 5px;
+}
+
+.connectionstate {
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+}
+
+video{
+    width: 150px; 
+}
