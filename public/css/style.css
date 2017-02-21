@@ -31,13 +31,15 @@ a {
 
 #remotes .remote{
   position: relative;
-  width: 30%;
+  width: 100%;
+  height: calc(100vh - 101px);
 }
 
 .videoContainer video {
     position: absolute;
     width: 100%;
     height: 100%;
+    left: 0;
 }
 
 .volume {
