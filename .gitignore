@@ -63,3 +63,6 @@ typings/
 
 
 # End of https://www.gitignore.io/api/node
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
