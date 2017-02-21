@@ -1,0 +1,27 @@
+{
+  "name": "audio-video-calling",
+  "version": "1.0.0",
+  "description": "Audio & Video calling in web by using webRTC",
+  "main": "app.js",
+  "scripts": {
+    "start": "lite-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skillvo/audio-video-calling.git"
+  },
+  "keywords": [
+    "AngularJS",
+    "webRTC",
+    "NodeJS"
+  ],
+  "author": "Mani Kiran",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/skillvo/audio-video-calling/issues"
+  },
+  "homepage": "https://github.com/skillvo/audio-video-calling#readme",
+  "devDependencies": {
+    "lite-server": "^2.2.2"
+  }
+}

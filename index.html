@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html ng-app="plunker" data-ng-cloak>
+
+<head>
+  <meta charset="utf-8" />
+  <title>AngularJS Plunker</title>
+  <script>
+    document.write('<base href="' + document.location + '" />');
+  </script>
+  <link rel="stylesheet" href="style.css" />
+
+</head>
+
+<body ng-controller="MainCtrl">
+  <h3> {{ roomName ? 'Room ' + roomName :'Start a room'}}</h3>
+
+  <form id="createRoom" ng-submit="createRoom()" ng-hide="isRoomCreated">
+    <input placeholder="Enter Rom name" ng-model="roomName" />
+    <button type="submit">Create it!</button>
+  </form>
+  <p id="subTitle">{{joinUrl}}</p>
+
+  <hr>
+  <div class="videoContainer">
+    <video id="localVideo" style="height: 150px;" oncontextmenu="return false;"></video>
+    <meter id="localVolume" class="volume" min="-45" max="-20" high="-25" low="-40" ng-show="localVolume"></meter>
+  </div>
+  <div id="localScreenContainer" class="videoContainer" ng-show="localScreenContainer">
+  </div>
+  <div id="remotes"></div>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.10/angular.min.js"></script>
+
+  <script src="webrtc.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
