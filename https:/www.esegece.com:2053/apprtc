@@ -1,0 +1,472 @@
+From 3593f468eb86149aab7e25dec4741e80f31962f0 Mon Sep 17 00:00:00 2001
+From: FabioCavaleti <f.cavaleti@usp.br>
+Date: Thu, 2 Feb 2023 10:42:15 -0300
+Subject: [PATCH 1/2] Conversion completed
+
+---
+ .../{AgentOverview.js => AgentOverview.tsx}   | 10 +++-
+ .../{AnalyticsPage.js => AnalyticsPage.tsx}   | 60 +++++++++++++++----
+ ...DateRangePicker.js => DateRangePicker.tsx} | 54 ++++++++++-------
+ ...eableChart.js => InterchangeableChart.tsx} | 44 ++++++++++----
+ .../analytics/{Overview.js => Overview.tsx}   |  5 +-
+ .../{CounterItem.js => CounterItem.tsx}       | 12 +++-
+ 6 files changed, 138 insertions(+), 47 deletions(-)
+ rename apps/meteor/client/views/omnichannel/analytics/{AgentOverview.js => AgentOverview.tsx} (89%)
+ rename apps/meteor/client/views/omnichannel/analytics/{AnalyticsPage.js => AnalyticsPage.tsx} (71%)
+ rename apps/meteor/client/views/omnichannel/analytics/{DateRangePicker.js => DateRangePicker.tsx} (63%)
+ rename apps/meteor/client/views/omnichannel/analytics/{InterchangeableChart.js => InterchangeableChart.tsx} (63%)
+ rename apps/meteor/client/views/omnichannel/analytics/{Overview.js => Overview.tsx} (86%)
+ rename apps/meteor/client/views/omnichannel/realTimeMonitoring/counter/{CounterItem.js => CounterItem.tsx} (68%)
+
+diff --git a/apps/meteor/client/views/omnichannel/analytics/AgentOverview.js b/apps/meteor/client/views/omnichannel/analytics/AgentOverview.tsx
+similarity index 89%
+rename from apps/meteor/client/views/omnichannel/analytics/AgentOverview.js
+rename to apps/meteor/client/views/omnichannel/analytics/AgentOverview.tsx
+index a71485031b07..f7b3fcbf9cce 100644
+--- a/apps/meteor/client/views/omnichannel/analytics/AgentOverview.js
++++ b/apps/meteor/client/views/omnichannel/analytics/AgentOverview.tsx
+@@ -4,7 +4,15 @@ import React, { useMemo, useEffect, useState } from 'react';
+ 
+ const style = { width: '100%' };
+ 
+-const AgentOverview = ({ type, dateRange, departmentId }) => {
++const AgentOverview = ({
++	type,
++	dateRange,
++	departmentId,
++}: {
++	type: string;
++	dateRange: { start: string; end: string };
++	departmentId: string;
++}) => {
+ 	const t = useTranslation();
+ 	const { start, end } = dateRange;
+ 
+diff --git a/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.js b/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.tsx
+similarity index 71%
+rename from apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.js
+rename to apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.tsx
+index f1d227c58935..0ec6bdb59b8e 100644
+--- a/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.js
++++ b/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.tsx
+@@ -1,3 +1,4 @@
++import type { SelectOption } from '@rocket.chat/fuselage';
+ import { Box, Select, Margins, Field, Label } from '@rocket.chat/fuselage';
+ import { useTranslation } from '@rocket.chat/ui-contexts';
+ import React, { useMemo, useState, useEffect } from 'react';
+@@ -9,7 +10,15 @@ import DateRangePicker from './DateRangePicker';
+ import InterchangeableChart from './InterchangeableChart';
+ import Overview from './Overview';
+ 
+-const useOptions = (type) => {
++type DepartmentType =
++	| string
++	| {
++			value: string;
++			label: string;
++	  }
++	| undefined;
++
++const useOptions = (type: string): SelectOption[] => {
+ 	const t = useTranslation();
+ 	return useMemo(() => {
+ 		if (type === 'Conversations') {
+@@ -31,11 +40,11 @@ const useOptions = (type) => {
+ const AnalyticsPage = () => {
+ 	const t = useTranslation();
+ 	const [type, setType] = useState('Conversations');
+-	const [department, setDepartment] = useState(null);
+-	const [dateRange, setDateRange] = useState({ start: null, end: null });
+-	const [chartName, setChartName] = useState();
++	const [department, setDepartment] = useState<DepartmentType>('');
++	const [dateRange, setDateRange] = useState({ start: '', end: '' });
++	const [chartName, setChartName] = useState('');
+ 
+-	const typeOptions = useMemo(
++	const typeOptions: SelectOption[] = useMemo(
+ 		() => [
+ 			['Conversations', t('Conversations')],
+ 			['Productivity', t('Productivity')],
+@@ -43,7 +52,7 @@ const AnalyticsPage = () => {
+ 		[t],
+ 	);
+ 
+-	const graphOptions = useOptions(type);
++	const graphOptions: SelectOption[] = useOptions(type);
+ 
+ 	useEffect(() => {
+ 		setChartName(graphOptions[0][0]);
+@@ -64,15 +73,26 @@ const AnalyticsPage = () => {
+ 							<AutoCompleteDepartment
+ 								value={department}
+ 								onChange={setDepartment}
+-								placeholder={t('All')}
+-								label={t('All')}
++								// placeholder={t('All')}
++								// label={t('All')}
+ 								onlyMyDepartments
+ 							/>
+ 						</Box>
+ 						<DateRangePicker mi='x4' flexGrow={1} onChange={setDateRange} />
+ 					</Box>
+ 					<Box>
+-						<Overview type={type} dateRange={dateRange} departmentId={department?.value} />
++						<Overview
++							type={type}
++							dateRange={dateRange}
++							departmentId={
++								(
++									department as {
++										value: string;
++										label: string;
++									}
++								)?.value
++							}
++						/>
+ 					</Box>
+ 					<Box display='flex' flexDirection='row'>
+ 						<Margins inline='x2'>
+@@ -90,12 +110,30 @@ const AnalyticsPage = () => {
+ 							w='66%'
+ 							h='100%'
+ 							chartName={chartName}
+-							departmentId={department?.value}
++							departmentId={
++								(
++									department as {
++										value: string;
++										label: string;
++									}
++								)?.value
++							}
+ 							dateRange={dateRange}
+ 							alignSelf='stretch'
+ 						/>
+ 						<Box display='flex' w='33%' flexDirection='row' justifyContent='stretch' p='x10' mis='x4'>
+-							<AgentOverview type={chartName} dateRange={dateRange} departmentId={department?.value} />
++							<AgentOverview
++								type={chartName}
++								dateRange={dateRange}
++								departmentId={
++									(
++										department as {
++											value: string;
++											label: string;
++										}
++									)?.value
++								}
++							/>
+ 						</Box>
+ 					</Box>
+ 				</Margins>
+diff --git a/apps/meteor/client/views/omnichannel/analytics/DateRangePicker.js b/apps/meteor/client/views/omnichannel/analytics/DateRangePicker.tsx
+similarity index 63%
+rename from apps/meteor/client/views/omnichannel/analytics/DateRangePicker.js
+rename to apps/meteor/client/views/omnichannel/analytics/DateRangePicker.tsx
+index 28e3fc6722c1..8069b4beab2f 100644
+--- a/apps/meteor/client/views/omnichannel/analytics/DateRangePicker.js
++++ b/apps/meteor/client/views/omnichannel/analytics/DateRangePicker.tsx
+@@ -1,24 +1,36 @@
+ import { Box, InputBox, Menu, Field } from '@rocket.chat/fuselage';
+ import { useMutableCallback } from '@rocket.chat/fuselage-hooks';
+ import { useTranslation } from '@rocket.chat/ui-contexts';
+-import moment from 'moment';
++import type { ComponentProps, ReactElement } from 'react';
+ import React, { useState, useMemo, useEffect } from 'react';
+ 
+-const formatToDateInput = (date) => date.format('YYYY-MM-DD');
++const date = new Date();
+ 
+-const todayDate = formatToDateInput(moment());
++const formatToDateInput = (date: Date): string => date.toISOString().slice(0, 10);
+ 
+-const getMonthRange = (monthsToSubtractFromToday) => ({
+-	start: formatToDateInput(moment().subtract(monthsToSubtractFromToday, 'month').date(1)),
+-	end: formatToDateInput(monthsToSubtractFromToday === 0 ? moment() : moment().subtract(monthsToSubtractFromToday).date(0)),
+-});
++const todayDate = formatToDateInput(date);
+ 
+-const getWeekRange = (daysToSubtractFromStart, daysToSubtractFromEnd) => ({
+-	start: formatToDateInput(moment().subtract(daysToSubtractFromStart, 'day')),
+-	end: formatToDateInput(moment().subtract(daysToSubtractFromEnd, 'day')),
+-});
++const getMonthRange = (monthsToSubtractFromToday: number): { start: string; end: string } => {
++	const date = new Date();
++	return {
++		start: formatToDateInput(new Date(date.getFullYear(), date.getMonth() - monthsToSubtractFromToday, 1)),
++		end: formatToDateInput(new Date(date.getFullYear(), date.getMonth() - monthsToSubtractFromToday + 1, 0)),
++	};
++};
++
++const getWeekRange = (daysToSubtractFromStart: number, daysToSubtractFromEnd: number): { start: string; end: string } => {
++	const date = new Date();
++	return {
++		start: formatToDateInput(new Date(date.getFullYear(), date.getMonth(), date.getDate() - daysToSubtractFromStart)),
++		end: formatToDateInput(new Date(date.getFullYear(), date.getMonth(), date.getDate() - daysToSubtractFromEnd)),
++	};
++};
++
++type DateRangePickerProps = Omit<ComponentProps<typeof Box>, 'onChange'> & {
++	onChange?: (dateRange: { start: string; end: string }) => void;
++};
+ 
+-const DateRangePicker = ({ onChange = () => {}, ...props }) => {
++const DateRangePicker = ({ onChange, ...props }: DateRangePickerProps): ReactElement => {
+ 	const t = useTranslation();
+ 	const [range, setRange] = useState({ start: '', end: '' });
+ 
+@@ -30,7 +42,7 @@ const DateRangePicker = ({ onChange = () => {}, ...props }) => {
+ 			end: range.end,
+ 		};
+ 		setRange(rangeObj);
+-		onChange(rangeObj);
++		onChange?.(rangeObj);
+ 	});
+ 
+ 	const handleEnd = useMutableCallback(({ currentTarget }) => {
+@@ -39,12 +51,12 @@ const DateRangePicker = ({ onChange = () => {}, ...props }) => {
+ 			start: range.start,
+ 		};
+ 		setRange(rangeObj);
+-		onChange(rangeObj);
++		onChange?.(rangeObj);
+ 	});
+ 
+ 	const handleRange = useMutableCallback((range) => {
+ 		setRange(range);
+-		onChange(range);
++		onChange?.(range);
+ 	});
+ 
+ 	useEffect(() => {
+@@ -59,42 +71,42 @@ const DateRangePicker = ({ onChange = () => {}, ...props }) => {
+ 			today: {
+ 				icon: 'history',
+ 				label: t('Today'),
+-				action: () => {
++				action: (): void => {
+ 					handleRange(getWeekRange(0, 0));
+ 				},
+ 			},
+ 			yesterday: {
+ 				icon: 'history',
+ 				label: t('Yesterday'),
+-				action: () => {
++				action: (): void => {
+ 					handleRange(getWeekRange(1, 1));
+ 				},
+ 			},
+ 			thisWeek: {
+ 				icon: 'history',
+ 				label: t('This_week'),
+-				action: () => {
++				action: (): void => {
+ 					handleRange(getWeekRange(7, 0));
+ 				},
+ 			},
+ 			previousWeek: {
+ 				icon: 'history',
+ 				label: t('Previous_week'),
+-				action: () => {
++				action: (): void => {
+ 					handleRange(getWeekRange(14, 7));
+ 				},
+ 			},
+ 			thisMonth: {
+ 				icon: 'history',
+ 				label: t('This_month'),
+-				action: () => {
++				action: (): void => {
+ 					handleRange(getMonthRange(0));
+ 				},
+ 			},
+ 			lastMonth: {
+ 				icon: 'history',
+ 				label: t('Previous_month'),
+-				action: () => {
++				action: (): void => {
+ 					handleRange(getMonthRange(1));
+ 				},
+ 			},
+diff --git a/apps/meteor/client/views/omnichannel/analytics/InterchangeableChart.js b/apps/meteor/client/views/omnichannel/analytics/InterchangeableChart.tsx
+similarity index 63%
+rename from apps/meteor/client/views/omnichannel/analytics/InterchangeableChart.js
+rename to apps/meteor/client/views/omnichannel/analytics/InterchangeableChart.tsx
+index c75febb8ff74..25696b0212e3 100644
+--- a/apps/meteor/client/views/omnichannel/analytics/InterchangeableChart.js
++++ b/apps/meteor/client/views/omnichannel/analytics/InterchangeableChart.tsx
+@@ -1,12 +1,13 @@
+ import { useMutableCallback } from '@rocket.chat/fuselage-hooks';
+ import { useToastMessageDispatch, useMethod, useTranslation } from '@rocket.chat/ui-contexts';
++import type { Chart as ChartType, TooltipItem } from 'chart.js';
+ import React, { useRef, useEffect } from 'react';
+ 
+ import { drawLineChart } from '../../../../app/livechat/client/lib/chartHandler';
+ import { secondsToHHMMSS } from '../../../../lib/utils/secondsToHHMMSS';
+ import Chart from '../realTimeMonitoring/charts/Chart';
+ 
+-const getChartTooltips = (chartName) => {
++const getChartTooltips = (chartName: string) => {
+ 	switch (chartName) {
+ 		case 'Avg_chat_duration':
+ 		case 'Avg_first_response_time':
+@@ -15,13 +16,14 @@ const getChartTooltips = (chartName) => {
+ 		case 'Avg_reaction_time':
+ 			return {
+ 				callbacks: {
+-					title([ctx]) {
++					title([ctx]: TooltipItem<'line'>[]) {
+ 						const { dataset } = ctx;
+ 						return dataset.label;
+ 					},
+-					label(ctx) {
++					label(ctx: TooltipItem<'line'>) {
+ 						const { dataset, dataIndex } = ctx;
+-						return secondsToHHMMSS(dataset.data[dataIndex]);
++						const item = dataset.data[dataIndex];
++						return secondsToHHMMSS(typeof item === 'number' ? item : 0);
+ 					},
+ 				},
+ 			};
+@@ -30,12 +32,25 @@ const getChartTooltips = (chartName) => {
+ 	}
+ };
+ 
+-const InterchangeableChart = ({ departmentId, dateRange, chartName, ...props }) => {
++const InterchangeableChart = ({
++	departmentId,
++	dateRange,
++	chartName,
++	...props
++}: {
++	departmentId: string;
++	dateRange: { start: string; end: string };
++	chartName: string;
++	flexShrink: number;
++	h: string;
++	w: string;
++	alignSelf: string;
++}) => {
+ 	const t = useTranslation();
+ 	const dispatchToastMessage = useToastMessageDispatch();
+ 
+-	const canvas = useRef();
+-	const context = useRef();
++	const canvas = useRef<HTMLCanvasElement | null>(null);
++	const context = useRef<ChartType<'line', number, string> | void>();
+ 
+ 	const { start, end } = dateRange;
+ 
+@@ -51,9 +66,16 @@ const InterchangeableChart = ({ departmentId, dateRange, chartName, ...props })
+ 			if (!result?.chartLabel || !result?.dataLabels || !result?.dataPoints) {
+ 				throw new Error('Error! fetching chart data. Details: livechat:getAnalyticsChartData => Missing Data');
+ 			}
+-			context.current = await drawLineChart(canvas.current, context.current, [result.chartLabel], result.dataLabels, [result.dataPoints], {
+-				tooltipCallbacks,
+-			});
++			context.current = await drawLineChart(
++				canvas.current as HTMLCanvasElement,
++				context.current as ChartType<'line', number, string>,
++				[result.chartLabel],
++				result.dataLabels,
++				[result.dataPoints],
++				{
++					tooltipCallbacks,
++				},
++			);
+ 		} catch (error) {
+ 			dispatchToastMessage({ type: 'error', message: error });
+ 		}
+@@ -70,7 +92,7 @@ const InterchangeableChart = ({ departmentId, dateRange, chartName, ...props })
+ 		});
+ 	}, [chartName, departmentId, draw, end, start, t, loadData]);
+ 
+-	return <Chart border='none' pi='none' ref={canvas} {...props} />;
++	return <Chart /* border='none' pi='none'*/ ref={canvas} {...props} />;
+ };
+ 
+ export default InterchangeableChart;
+diff --git a/apps/meteor/client/views/omnichannel/analytics/Overview.js b/apps/meteor/client/views/omnichannel/analytics/Overview.tsx
+similarity index 86%
+rename from apps/meteor/client/views/omnichannel/analytics/Overview.js
+rename to apps/meteor/client/views/omnichannel/analytics/Overview.tsx
+index 81d8c6710a7a..53764d6717d9 100644
+--- a/apps/meteor/client/views/omnichannel/analytics/Overview.js
++++ b/apps/meteor/client/views/omnichannel/analytics/Overview.tsx
+@@ -1,4 +1,5 @@
+ import { Box, Skeleton } from '@rocket.chat/fuselage';
++import type { TranslationKey } from '@rocket.chat/ui-contexts';
+ import { useMethod, useTranslation } from '@rocket.chat/ui-contexts';
+ import React, { useEffect, useState, useMemo } from 'react';
+ 
+@@ -10,7 +11,7 @@ const initialData = Array.from({ length: 3 }).map(() => ({ title: '', value: ''
+ const conversationsInitialData = [initialData, initialData];
+ const productivityInitialData = [initialData];
+ 
+-const Overview = ({ type, dateRange, departmentId }) => {
++const Overview = ({ type, dateRange, departmentId }: { type: string; dateRange: { start: string; end: string }; departmentId: string }) => {
+ 	const t = useTranslation();
+ 
+ 	const { start, end } = dateRange;
+@@ -62,7 +63,7 @@ const Overview = ({ type, dateRange, departmentId }) => {
+ 							pb='x8'
+ 							flexBasis='100%'
+ 							key={i}
+-							title={title ? t(title) : <Skeleton width='x60' />}
++							title={title ? t(title as TranslationKey) : <Skeleton width='x60' />}
+ 							count={value}
+ 						/>
+ 					))}
+diff --git a/apps/meteor/client/views/omnichannel/realTimeMonitoring/counter/CounterItem.js b/apps/meteor/client/views/omnichannel/realTimeMonitoring/counter/CounterItem.tsx
+similarity index 68%
+rename from apps/meteor/client/views/omnichannel/realTimeMonitoring/counter/CounterItem.js
+rename to apps/meteor/client/views/omnichannel/realTimeMonitoring/counter/CounterItem.tsx
+index 1828239bf66e..d1495f8c241f 100644
+--- a/apps/meteor/client/views/omnichannel/realTimeMonitoring/counter/CounterItem.js
++++ b/apps/meteor/client/views/omnichannel/realTimeMonitoring/counter/CounterItem.tsx
+@@ -1,7 +1,17 @@
+ import { Box } from '@rocket.chat/fuselage';
+ import React from 'react';
+ 
+-const CounterItem = ({ title = '', count = '-', ...props }) => (
++const CounterItem = ({
++	title = '',
++	count = '-',
++	...props
++}: {
++	title: string | JSX.Element;
++	count: string;
++	flexShrink?: number;
++	pb?: string;
++	flexBasis?: string;
++}) => (
+ 	<Box display='flex' flexDirection='column' justifyContent='space-between' alignItems='center' flexGrow={1} {...props}>
+ 		<Box fontScale='h4' textTransform='uppercase' color='hint' textAlign='center' pi='x8'>
+ 			{title}
+
+From fbb69b8ad9c3a89282fa8faa058cb04905ce5bc5 Mon Sep 17 00:00:00 2001
+From: FabioCavaleti <f.cavaleti@usp.br>
+Date: Thu, 2 Feb 2023 14:11:55 -0300
+Subject: [PATCH 2/2] remove commented code
+
+---
+ .../client/views/omnichannel/analytics/AnalyticsPage.tsx  | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.tsx b/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.tsx
+index 0ec6bdb59b8e..ba4c8c98d0f8 100644
+--- a/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.tsx
++++ b/apps/meteor/client/views/omnichannel/analytics/AnalyticsPage.tsx
+@@ -70,13 +70,7 @@ const AnalyticsPage = () => {
+ 						</Box>
+ 						<Box maxWidth='40%' display='flex' mi='x4' flexGrow={1} flexDirection='column'>
+ 							<Label mb='x4'>{t('Departments')}</Label>
+-							<AutoCompleteDepartment
+-								value={department}
+-								onChange={setDepartment}
+-								// placeholder={t('All')}
+-								// label={t('All')}
+-								onlyMyDepartments
+-							/>
++							<AutoCompleteDepartment value={department} onChange={setDepartment} onlyMyDepartments />
+ 				
